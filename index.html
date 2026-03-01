@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="SAFEMRS: Corroborative Dual-Channel Pre-Execution Safety Verification for LLM-Based Heterogeneous Multi-Robot Task Planning — IROS 2026">
+  <meta name="keywords" content="Multi-Robot Systems, Safety Verification, LLM, Formal Methods, Task Planning, LTL, PDDL, ROS 2, Gazebo">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAFEMRS — Dual-Channel Safety for Multi-Robot LLM Planning</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+
+  <style>
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 1.5rem;
+      color: white;
+      text-align: center;
+      margin: 0.5rem;
+    }
+    .stat-card .stat-number { font-size: 2.5rem; font-weight: 700; }
+    .stat-card .stat-label { font-size: 0.95rem; opacity: 0.9; }
+    .stat-card.blue { background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); }
+    .stat-card.green { background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); }
+    .stat-card.orange { background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); }
+    .stat-card.teal { background: linear-gradient(135deg, #009688 0%, #00796B 100%); }
+    .stat-card.red { background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%); }
+    .figure-container { margin: 1.5rem 0; text-align: center; }
+    .figure-container img { max-width: 100%; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+    .figure-caption { font-size: 0.9rem; color: #666; margin-top: 0.5rem; font-style: italic; }
+    .contrib-box {
+      background: #f5f7ff;
+      border-left: 4px solid #2196F3;
+      padding: 1rem 1.5rem;
+      margin: 0.75rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .contrib-box strong { color: #1976D2; }
+    .channel-tag {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 0.25rem;
+      color: white;
+    }
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    .result-table th, .result-table td {
+      padding: 0.6rem 0.8rem;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    .result-table th {
+      background: #f5f5f5;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .result-table td { font-size: 0.9rem; }
+    .result-table tr:hover { background: #f9f9f9; }
+    .result-table .highlight { font-weight: 700; color: #1976D2; }
+    .demo-table th, .demo-table td { text-align: left; }
+    .demo-table td:last-child { font-weight: 600; }
+    .approve { color: #388E3C; }
+    .reject { color: #D32F2F; }
+    .review { color: #F57C00; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://github.com/asmbatati/SAFEMRS">
+      <span class="icon">
+          <i class="fab fa-github"></i>
+      </span>
+      <span>GitHub</span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Resources
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://github.com/asmbatati/SAFEMRS">
+            Source Code
+          </a>
+          <a class="navbar-item" href="https://github.com/neuros-x">
+            NEUROS-X Organization
+          </a>
+          <a class="navbar-item" href="https://www.ieee-iros.org/">
+            IROS 2026
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">SAFEMRS: Corroborative Dual-Channel Pre-Execution Safety Verification for LLM-Based Heterogeneous Multi-Robot Task Planning</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Abdulrahman S. Al-Batati<sup>1</sup>*,</span>
+            <span class="author-block">Anis Koubaa<sup>2</sup>*,</span>
+            <span class="author-block">Khaled Gabr<sup>1</sup>,</span>
+            <span class="author-block">Serry Sibaee<sup>1</sup>,</span>
+            <span class="author-block">Mohamed Abdelkader<sup>1</sup>,</span>
+            <span class="author-block">Yasser Alhabashi<sup>1</sup>,</span>
+            <span class="author-block">Fatimah Alahmed<sup>1</sup>,</span>
+            <span class="author-block">Imen Jarraya<sup>1</sup>,</span>
+            <span class="author-block">Wadii Boulila<sup>1</sup></span>
+          </div>
+
+          <div class="is-size-6 publication-authors" style="margin-top:0.25rem;">
+            <span class="author-block"><sup>1</sup>Robotics and IoT Lab, Prince Sultan University &nbsp;&nbsp;
+            <sup>2</sup>College of CIS, Alfaisal University</span>
+          </div>
+          <div class="is-size-6 publication-authors" style="margin-top:0.15rem; color:#888;">
+            <span class="author-block">* Equal contribution</span>
+          </div>
+
+          <div class="is-size-6 publication-authors" style="margin-top:0.5rem;">
+            <span class="author-block"><strong>IROS 2026</strong> &mdash; Pittsburgh, PA &nbsp;|&nbsp; Sep 27 &ndash; Oct 1, 2026</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/asmbatati/SAFEMRS"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#benchmark" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-chart-bar"></i></span>
+                  <span>Benchmark</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#demo" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-robot"></i></span>
+                  <span>Demo</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Key Statistics -->
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered is-multiline">
+        <div class="column is-one-fifth">
+          <div class="stat-card blue">
+            <div class="stat-number">102</div>
+            <div class="stat-label">Scenarios</div>
+          </div>
+        </div>
+        <div class="column is-one-fifth">
+          <div class="stat-card green">
+            <div class="stat-number">7</div>
+            <div class="stat-label">Hazard Categories</div>
+          </div>
+        </div>
+        <div class="column is-one-fifth">
+          <div class="stat-card orange">
+            <div class="stat-number">0.0%</div>
+            <div class="stat-label">Hard FPR (Dual)</div>
+          </div>
+        </div>
+        <div class="column is-one-fifth">
+          <div class="stat-card teal">
+            <div class="stat-number">87.7%</div>
+            <div class="stat-label">Effective Coverage</div>
+          </div>
+        </div>
+        <div class="column is-one-fifth">
+          <div class="stat-card red">
+            <div class="stat-number">&lt;1ms</div>
+            <div class="stat-label">Formal Latency</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Large language models (LLMs) have demonstrated remarkable capability in decomposing complex natural-language commands into multi-robot task plans. However, LLM-generated plans are inherently unreliable for safety-critical deployment: they can produce spatially conflicting assignments, violate temporal ordering constraints, ignore physical robot limitations, and hallucinate feasible actions. Existing safety approaches apply either formal logic verification <em>or</em> LLM-based safety reasoning in isolation&mdash;each covering distinct, non-overlapping hazard categories.
+          </p>
+          <p>
+            We introduce <strong>SAFEMRS</strong>, a <em>corroborative dual-channel pre-execution safety verification</em> framework that combines a formal logic channel (LTL model checking + PDDL validation) with an LLM-based Chain-of-Thought safety reasoning channel. A corroborative fusion mechanism reconciles their verdicts: plans approved by both channels proceed to execution; plans rejected by both are blocked with explanations; disagreements trigger targeted human review.
+          </p>
+          <p>
+            We evaluate SAFEMRS on a 7-category heterogeneous multi-robot safety benchmark comprising 102 scenarios with a UAV&ndash;UGV inspection team in Gazebo Harmonic. Experiments reveal a clear complementary failure pattern: the formal channel achieves 100% HDR on structural categories at sub-millisecond latency, while the LLM channel adds commonsense and physical coverage invisible to formal logic. Corroborative dual-channel fusion achieves <strong>0.0% hard false positive rate</strong> by escalating all channel disagreements to human review (23.5% review rate), yielding 87.7% effective unsafe plan coverage with zero autonomous false rejections.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Contributions -->
+<section class="section" style="background:#f9fafb;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Key Contributions</h2>
+    <div style="margin-top:1rem;">
+      <div class="contrib-box">
+        <strong>C1 &mdash; Dual-Channel Corroborative Framework:</strong> A pre-execution safety architecture that runs formal logic (LTL + PDDL + Deontic) and LLM Chain-of-Thought safety channels <em>in parallel</em>, fusing verdicts through a corroborative mechanism with explicit disagreement handling.
+      </div>
+      <div class="contrib-box">
+        <strong>C2 &mdash; Formal Proof of Complementarity:</strong> We prove that the formal and LLM channels cover strictly non-overlapping hazard categories (Theorem 1), and show that corroborative fusion achieves <strong>zero hard false positives</strong> by escalating disagreements to human review.
+      </div>
+      <div class="contrib-box">
+        <strong>C3 &mdash; 7-Category MRS Safety Benchmark:</strong> A benchmark of 102 labeled safe/unsafe scenarios across 7 hazard categories (spatial, resource, temporal, common-sense, physical, battery, ordering), evaluated on a UAV&ndash;UGV team in ROS 2 / Gazebo Harmonic.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Architecture -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">System Architecture</h2>
+
+    <div class="columns is-centered">
+      <div class="column is-full">
+        <div class="figure-container">
+          <img src="./static/images/01_system_architecture.png" alt="SAFEMRS System Architecture">
+          <p class="figure-caption">Fig. 1 &mdash; SAFEMRS dual-channel architecture. A natural-language command is decomposed by the Agentic Planner into a canonical InternalPlan, which is simultaneously verified by two architecturally independent channels. The corroborative fusion mechanism reconciles their verdicts into a final decision (Approve / Reject / Review).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Dual Channels -->
+<section class="section" style="background:#f9fafb;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Dual Verification Channels</h2>
+    <div class="columns is-centered is-multiline" style="margin-top:1rem;">
+      <div class="column is-6">
+        <div class="box">
+          <h3 class="title is-5"><span class="channel-tag" style="background:#2196F3;">Ch. 1</span> Formal Logic Verifier</h3>
+          <p><strong>Sound but incomplete.</strong> Encodes safety constraints as LTL formulas verified via the Spot library, PDDL precondition validation, and deontic logic (Permitted/Forbidden/Obligatory). Achieves <strong>100% HDR</strong> on spatial, resource, temporal, and ordering categories at <strong>&lt;1 ms</strong> latency.</p>
+        </div>
+      </div>
+      <div class="column is-6">
+        <div class="box">
+          <h3 class="title is-5"><span class="channel-tag" style="background:#E91E63;">Ch. 2</span> LLM Safety CoT Reasoner</h3>
+          <p><strong>Complete but unsound.</strong> Four parallel sub-reasoners&mdash;Invariant, Conflict, Common-Sense, Physical Feasibility&mdash;using structured Chain-of-Thought prompting. Uniquely covers <strong>common-sense</strong> (71.4%) and <strong>physical feasibility</strong> (100%) hazards invisible to formal logic.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="columns is-centered" style="margin-top:1rem;">
+      <div class="column is-6">
+        <div class="figure-container">
+          <img src="./static/images/03_formal_verifier.png" alt="Formal Verifier Detail">
+          <p class="figure-caption">Fig. 2 &mdash; Channel 1 formal verifier: LTL model checking via Spot + B&uuml;chi automata, PDDL precondition validation, and deontic constraint enforcement.</p>
+        </div>
+      </div>
+      <div class="column is-6">
+        <div class="figure-container">
+          <img src="./static/images/05_fusion_logic.png" alt="Corroborative Fusion">
+          <p class="figure-caption">Fig. 3 &mdash; Corroborative fusion decision table. The four verdict combinations map to Approve, Reject, or Review with associated risk levels.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Data Flow -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Data Flow Pipeline</h2>
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <div class="figure-container">
+          <img src="./static/images/02_core_data_flow.png" alt="Core Data Flow">
+          <p class="figure-caption">Fig. 4 &mdash; InternalPlan data-flow through the SAFEMRS pipeline. JSON is the required input format; PDDL and BehaviorTree XML are generated on-demand by the formal verifier and ROS 2 executor respectively.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Benchmark -->
+<section class="section" id="benchmark" style="background:#f9fafb;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">SAFEMRS-102 Benchmark</h2>
+    <p class="has-text-centered" style="margin-bottom:1rem;">
+      7 hazard categories &bull; 53 unsafe + 49 safe scenarios &bull; UAV&ndash;UGV building inspection
+    </p>
+
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Category</th>
+              <th>Unsafe</th>
+              <th>Safe</th>
+              <th>Total</th>
+              <th style="text-align:left;">Example Hazard</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="text-align:left;">Spatial conflicts</td><td>10</td><td>7</td><td>17</td><td style="text-align:left;">Two robots in same corridor simultaneously</td></tr>
+            <tr><td style="text-align:left;">Battery/range</td><td>7</td><td>8</td><td>15</td><td style="text-align:left;">Mission exceeds UAV max flight time</td></tr>
+            <tr><td style="text-align:left;">Commonsense</td><td>7</td><td>7</td><td>14</td><td style="text-align:left;">Drone assigned near ceiling fans</td></tr>
+            <tr><td style="text-align:left;">Ordering/dependency</td><td>7</td><td>7</td><td>14</td><td style="text-align:left;">Report generated before inspection complete</td></tr>
+            <tr><td style="text-align:left;">Physical feasibility</td><td>7</td><td>7</td><td>14</td><td style="text-align:left;">Quadruped assigned to climb a ladder</td></tr>
+            <tr><td style="text-align:left;">Resource conflicts</td><td>7</td><td>7</td><td>14</td><td style="text-align:left;">Both robots need same charging station</td></tr>
+            <tr><td style="text-align:left;">Temporal ordering</td><td>8</td><td>6</td><td>14</td><td style="text-align:left;">Go2 enters building before drone confirms safety</td></tr>
+            <tr style="font-weight:700; border-top:2px solid #333;"><td style="text-align:left;">Total</td><td>53</td><td>49</td><td>102</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Results -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Experimental Results</h2>
+
+    <h3 class="title is-5" style="margin-top:1.5rem;">Ablation Study</h3>
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">System</th>
+              <th>HDR &uarr;</th>
+              <th>FPR &darr;</th>
+              <th>Coverage</th>
+              <th>Review</th>
+              <th>EffCov</th>
+              <th>Latency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="text-align:left;">No Verification</td><td>0%</td><td>0%</td><td>0/7</td><td>&mdash;</td><td>0%</td><td>&lt;1ms</td></tr>
+            <tr><td style="text-align:left;">Formal-Only</td><td>77.4%</td><td>10.2%</td><td>5/7</td><td>&mdash;</td><td>77.4%</td><td>&lt;1ms</td></tr>
+            <tr><td style="text-align:left;">LLM-Only (Qwen3:8b)</td><td>83.0%</td><td>4.1%</td><td>4/7</td><td>&mdash;</td><td>83.0%</td><td>69.3s</td></tr>
+            <tr style="background:#e8f5e9;"><td style="text-align:left;"><strong>SAFEMRS (Dual)</strong></td><td class="highlight">64.2%</td><td class="highlight">0.0%</td><td>3/7</td><td>23.5%</td><td class="highlight">87.7%</td><td>69.3s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 class="title is-5" style="margin-top:2rem;">Per-Category HDR</h3>
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Category</th>
+              <th>Formal-Only</th>
+              <th>LLM-Only</th>
+              <th>SAFEMRS (Dual)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="text-align:left;">Spatial conflicts</td><td>100%</td><td>100%</td><td>100%</td></tr>
+            <tr><td style="text-align:left;">Resource conflicts</td><td>100%</td><td>100%</td><td>100%</td></tr>
+            <tr><td style="text-align:left;">Temporal ordering</td><td>100%</td><td>62.5%</td><td>62.5%</td></tr>
+            <tr><td style="text-align:left;">Ordering/dependency</td><td>100%</td><td>42.9%</td><td>42.9%</td></tr>
+            <tr><td style="text-align:left;">Battery/range</td><td>85.7%</td><td>100%</td><td>85.7%</td></tr>
+            <tr><td style="text-align:left;">Physical feasibility</td><td>42.9%</td><td>100%</td><td>42.9%</td></tr>
+            <tr><td style="text-align:left;">Commonsense</td><td>0%</td><td>71.4%</td><td>0%*</td></tr>
+            <tr style="font-weight:700; border-top:2px solid #333;"><td style="text-align:left;">Overall</td><td>77.4%</td><td>83.0%</td><td>64.2%</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.85rem; color:#888; margin-top:0.5rem;">* Commonsense dual HDR = 0% because formal always returns Safe on these categories; all LLM detections are escalated to Review rather than hard-rejected.</p>
+      </div>
+    </div>
+
+    <h3 class="title is-5" style="margin-top:2rem;">LLM Backbone Comparison</h3>
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Backbone</th>
+              <th>HDR (LLM-ch)</th>
+              <th>HDR (Dual)</th>
+              <th>FPR (Dual)</th>
+              <th>EffCov</th>
+              <th>Latency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="text-align:left;">Qwen3:8b (local)</td><td>83.0%</td><td>64.2%</td><td class="highlight">0.0%</td><td>87.7%</td><td>69.3s</td></tr>
+            <tr><td style="text-align:left;">GPT-5.2 (cloud)</td><td>98.1%</td><td>75.5%</td><td>2.0%</td><td class="highlight">96.1%</td><td>5.2s</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Edge Deployment -->
+<section class="section" style="background:#f9fafb;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Edge-Deployable Safety</h2>
+    <p class="has-text-centered" style="margin-bottom:1rem;">
+      A free, local &lt;20B model + formal rules achieves comparable safety to commercial frontier LLMs.
+    </p>
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Property</th>
+              <th>GPT-5.2 Alone</th>
+              <th>Qwen3:8b Alone</th>
+              <th>SAFEMRS (Qwen3:8b)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="text-align:left;">Effective Coverage</td><td>98.1%</td><td>83.0%</td><td class="highlight">87.7%</td></tr>
+            <tr><td style="text-align:left;">Hard FPR</td><td>~10%</td><td>4.1%</td><td class="highlight">0.0%</td></tr>
+            <tr><td style="text-align:left;">Cost / plan</td><td>$$$ (API)</td><td>Free</td><td>Free</td></tr>
+            <tr><td style="text-align:left;">Internet Required</td><td>Yes</td><td>No</td><td>No</td></tr>
+            <tr><td style="text-align:left;">Latency</td><td>5.2s</td><td>69.3s</td><td>69.3s</td></tr>
+            <tr><td style="text-align:left;">Edge Deployable</td><td style="color:#D32F2F;">&#x2717;</td><td style="color:#388E3C;">&#x2713;</td><td style="color:#388E3C;">&#x2713;</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Demo Scenarios -->
+<section class="section" id="demo">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">ROS 2 / Gazebo Demo Scenarios</h2>
+    <p class="has-text-centered" style="margin-bottom:1rem;">
+      Live validation with a PX4 Iris x500 UAV and Unitree Go2 quadruped in Gazebo Harmonic.
+    </p>
+
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <table class="result-table demo-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Scenario</th>
+              <th>Safety Channel</th>
+              <th>Expected</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>D1</td><td>Safe plan: drone surveys roof, Go2 inspects ground</td><td>Both Safe</td><td class="approve">Approve</td></tr>
+            <tr><td>D2</td><td>Spatial conflict: both robots in corridor</td><td>Formal (LTL)</td><td class="reject">Reject</td></tr>
+            <tr><td>D3</td><td>Common-sense: drone near ceiling fans</td><td>LLM</td><td class="review">Review</td></tr>
+            <tr><td>D4</td><td>Temporal: Go2 enters before roof cleared</td><td>Formal (ordering)</td><td class="reject">Reject</td></tr>
+            <tr><td>D5</td><td>Battery overrun: 200m+ flight plan</td><td>Formal (range)</td><td class="reject">Reject</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="columns is-centered" style="margin-top:1rem;">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+          <p>All five scenarios produced the expected safety verdicts in live testing: D1 was approved and both robots executed successfully; D2 and D4 were hard-rejected by the formal channel; D3 was escalated to Review; D5 was hard-rejected for exceeding battery range. These confirm that SAFEMRS integrates end-to-end with a real ROS 2 robotic stack.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Key Findings -->
+<section class="section" style="background:#f9fafb;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Key Findings</h2>
+    <div class="content has-text-justified">
+      <ul>
+        <li><strong>Structural precision (formal):</strong> The formal channel achieves 100% HDR on spatial, resource, temporal, and ordering categories at &lt;1 ms latency with 10.2% FPR&mdash;a strong zero-latency gate for structurally-expressible constraints.</li>
+        <li><strong>Semantic coverage (LLM):</strong> The LLM channel achieves 83.0% overall HDR and only 4.1% FPR by catching commonsense (71.4%) and physical hazards (100%) invisible to formal logic&mdash;at the cost of 69.3s inference latency.</li>
+        <li><strong>Zero hard FPR (dual):</strong> Corroborative fusion achieves <strong>0.0% hard FPR</strong> by escalating all channel-disagreements to human review (23.5% review rate) rather than autonomous hard rejection. Effective unsafe coverage (hard reject + review) is 87.7%.</li>
+        <li><strong>Architecture-level generalization:</strong> The dual-channel architecture runs on Qwen3:8b (local, Ollama) with no cloud API required. GPT-5.2 achieves higher EffCov (96.1%) at 5.2s latency, confirming that complementarity holds regardless of LLM backbone.</li>
+        <li><strong>Edge-deployable safety:</strong> A free, local &lt;20B model + formal rules achieves 87.7% effective coverage with 0.0% hard FPR&mdash;comparable to commercial frontier LLMs but with zero cost, no internet, and full edge deployability.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- BibTeX -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{albatati2026safemrs,
+  author    = {Al-Batati, Abdulrahman S. and Koubaa, Anis and Gabr, Khaled and Sibaee, Serry and Abdelkader, Mohamed and Alhabashi, Yasser and Alahmed, Fatimah and Jarraya, Imen and Boulila, Wadii},
+  title     = {{SAFEMRS}: Corroborative Dual-Channel Pre-Execution Safety Verification for {LLM}-Based Heterogeneous Multi-Robot Task Planning},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year      = {2026},
+  address   = {Pittsburgh, PA, USA},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="#">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/asmbatati/SAFEMRS" class="external-link">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            RIOTU Lab, Prince Sultan University &amp; Alfaisal University &mdash; Riyadh, Saudi Arabia
+          </p>
+          <p style="font-size:0.85rem; color:#999;">
+            Website template adapted from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>,
+            licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
